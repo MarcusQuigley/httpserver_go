@@ -18,7 +18,7 @@ func GetPlayerScore(name string) string {
 	}
 
 	if name == "Floyd" {
-		return "10"
+		return "200"
 	}
 
 	return ""

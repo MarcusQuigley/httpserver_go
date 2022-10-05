@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	//server "github.com/marcusquigley/gowithtests3/httpserver"
 )
 
 func main() {

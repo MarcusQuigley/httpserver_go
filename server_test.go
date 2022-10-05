@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	//server "github.com/marcusquigley/gowithtests3/httpserver"
 )
 
 type StubPlayerStore struct {

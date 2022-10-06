@@ -29,7 +29,7 @@ func TestGETPlayers(t *testing.T) {
 		},
 		nil,
 	}
-	server := &PlayerServer{&store}
+	server := NewPlayerServer(&store)
 	t.Run("return peppers score", func(t *testing.T) {
 		request := newGetScoreRequest("Pepper")
 		response := httptest.NewRecorder()
@@ -58,7 +58,7 @@ func TestScoreWins(t *testing.T) {
 		nil,
 		[]string{},
 	}
-	server := &PlayerServer{store}
+	server := NewPlayerServer(store)
 	t.Run("Floyd wins", func(t *testing.T) {
 		player := "Floyd"
 		request := newPostScoreRequest(player)
@@ -77,7 +77,7 @@ func TestLeague(t *testing.T) {
 		nil,
 		[]string{},
 	}
-	server := &PlayerServer{store}
+	server := NewPlayerServer(store)
 	t.Run("it returns 200 on /league", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/league", nil)
 		response := httptest.NewRecorder()

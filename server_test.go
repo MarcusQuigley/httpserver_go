@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -82,28 +83,25 @@ func TestScoreWins(t *testing.T) {
 }
 
 func TestLeague(t *testing.T) {
-	store := &StubPlayerStore{
-		nil,
-		[]string{},
-		[]Player{
-			{"Marcus", 10},
-			{"Amy", 5},
-		},
+
+	wantedLeague := []Player{
+		{"Marcus", 10},
+		{"Amy", 5},
 	}
-	server := NewPlayerServer(store)
-	t.Run("it returns 200 on /league", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/league", nil)
+
+	store := StubPlayerStore{nil, nil, wantedLeague}
+
+	server := NewPlayerServer(&store)
+	t.Run("it returns the league table as JSON", func(t *testing.T) {
+		request := newLeagueRequest()
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, request)
-		var got []Player
-		err := json.NewDecoder(response.Body).Decode(&got)
-		if err != nil {
-			t.Fatalf("Unable to parse response from server %q into slice of Player, '%v'", response.Body, err)
-		}
-		if !reflect.DeepEqual(got, store.league) {
-			t.Errorf("got [%v] but want [%v]", got, store.league)
-		}
+		got := getLeagueFromResponse(t, response.Body)
 		assertStatus(t, response.Code, http.StatusOK)
+		assertLeague(t, got, wantedLeague)
+		if response.Result().Header.Get("content-type") != "application/json" {
+			t.Errorf("response did not have content-type of application/json, got %v", response.Result().Header)
+		}
 	})
 }
 
@@ -122,6 +120,29 @@ func newGetScoreRequest(name string) *http.Request {
 func newPostScoreRequest(name string) *http.Request {
 	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/players/%s", name), nil)
 	return req
+}
+
+func newLeagueRequest() *http.Request {
+	req, _ := http.NewRequest(http.MethodGet, "/league", nil)
+	return req
+}
+
+func getLeagueFromResponse(t testing.TB, body io.Reader) (league []Player) {
+	t.Helper()
+	err := json.NewDecoder(body).Decode(&league)
+
+	if err != nil {
+		t.Fatalf("Unable to parse response from server %q into slice of Player, '%v'", body, err)
+	}
+
+	return
+}
+
+func assertLeague(t testing.TB, got, want []Player) {
+	t.Helper()
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
 }
 
 func assertStatus(t testing.TB, got, want int) {

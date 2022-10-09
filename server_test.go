@@ -151,6 +151,12 @@ func assertStatus(t testing.TB, got, want int) {
 	}
 }
 
+func assertScoreEquals(t testing.TB, got, want int) {
+	if want != got {
+		t.Errorf("got %v but want %v", got, want)
+	}
+}
+
 func assertResponseBody(t testing.TB, got, want string) {
 	t.Helper()
 	if got != want {

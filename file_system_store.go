@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 )
 
@@ -16,13 +15,13 @@ func (f *FileSystemPlayerStore) GetLeague() League {
 	return league
 }
 
-func (f *FileSystemPlayerStore) GetPlayerScore(name string) (int, error) {
+func (f *FileSystemPlayerStore) GetPlayerScore(name string) int {
 	player := f.GetLeague().Find(name)
 	if player != nil {
-		return player.Wins, nil
+		return player.Wins
 	}
 
-	return 0, errors.New("no player found with " + name)
+	return 0
 }
 
 func (f *FileSystemPlayerStore) RecordWin(name string) {
@@ -31,6 +30,8 @@ func (f *FileSystemPlayerStore) RecordWin(name string) {
 
 	if player != nil {
 		player.Wins++
+	} else {
+		league = append(league, Player{name, 1})
 	}
 
 	f.database.Seek(0, 0)

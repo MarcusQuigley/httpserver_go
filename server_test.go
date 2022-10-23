@@ -75,10 +75,11 @@ func TestScoreWins(t *testing.T) {
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, request)
 		assertStatus(t, response.Code, http.StatusAccepted)
-		assertPostCalls(t, len(store.winCalls), 1)
-		if store.winCalls[0] != player {
-			t.Errorf("did not store correct winner got %q want %q", store.winCalls[0], player)
-		}
+		assertPlayerWins(t, store, player)
+		// assertPostCalls(t, len(store.winCalls), 1)
+		// if store.winCalls[0] != player {
+		// 	t.Errorf("did not store correct winner got %q want %q", store.winCalls[0], player)
+		// }
 	})
 }
 
@@ -105,12 +106,12 @@ func TestLeague(t *testing.T) {
 	})
 }
 
-func assertPostCalls(t testing.TB, got, want int) {
-	t.Helper()
-	if got != want {
-		t.Errorf("Got %d but want %d", got, want)
-	}
-}
+// func assertPostCalls(t testing.TB, got, want int) {
+// 	t.Helper()
+// 	if got != want {
+// 		t.Errorf("Got %d but want %d", got, want)
+// 	}
+// }
 
 func newGetScoreRequest(name string) *http.Request {
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/players/%s", name), nil)
@@ -155,5 +156,15 @@ func assertResponseBody(t testing.TB, got, want string) {
 	t.Helper()
 	if got != want {
 		t.Errorf("got %q but want %q", got, want)
+	}
+}
+
+func assertPlayerWins(t testing.TB, store *StubPlayerStore, winner string) {
+	t.Helper()
+	if len(store.winCalls) != 1 {
+		t.Fatalf("got %d calls to RecordWin want %d", len(store.winCalls), 1)
+	}
+	if store.winCalls[0] != winner {
+		t.Errorf("did not store correct winner got %q want %q", store.winCalls[0], winner)
 	}
 }

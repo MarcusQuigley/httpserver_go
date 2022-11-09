@@ -2,32 +2,34 @@ package poker
 
 import (
 	"bufio"
-	"errors"
 	"io"
 	"strings"
 )
 
 type CLI struct {
-	playerStore PlayerStore
-	in          io.Reader
+	playerStore IPlayerStore
+	in          *bufio.Scanner
 }
 
-func (cli *CLI) PlayPoker() error {
-	reader := bufio.NewScanner(cli.in)
-	reader.Scan()
-	player, err := extractWinner(reader.Text())
-	if err != nil {
-		return err
+// NewCLI creates a CLI for playing poker.
+func NewCLI(store IPlayerStore, in io.Reader) *CLI {
+	return &CLI{
+		playerStore: store,
+		in:          bufio.NewScanner(in),
 	}
-	cli.playerStore.RecordWin(player)
-	return nil
 }
 
-func extractWinner(input string) (string, error) {
-	var stringToReplace = " wins"
-	if len(input) == 0 {
-		return "", errors.New("no player name exists")
-	}
-	player := strings.Replace(input, stringToReplace, "", 1)
-	return player, nil
+func (cli *CLI) PlayPoker() {
+	userInput := cli.readLine()
+	cli.playerStore.RecordWin(extractWinner(userInput))
+}
+
+func extractWinner(userInput string) string {
+	return strings.Replace(userInput, " wins", "", 1)
+}
+
+func (cli *CLI) readLine() string {
+	cli.in.Scan()
+	return cli.in.Text()
+
 }

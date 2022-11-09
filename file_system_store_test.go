@@ -113,7 +113,7 @@ func createTempFile(t testing.TB, initialData string) (*os.File, func()) {
 	tmpfile.Write([]byte(initialData))
 
 	removeFile := func() {
-		tmpfile.Close()
+		//tmpfile.Close()
 		os.Remove(tmpfile.Name())
 	}
 

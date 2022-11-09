@@ -9,14 +9,14 @@ import (
 
 const jsonContentType = "application/json"
 
-type PlayerStore interface {
+type IPlayerStore interface {
 	GetPlayerScore(name string) int
 	RecordWin(name string)
 	GetLeague() League
 }
 
 type PlayerServer struct {
-	store PlayerStore
+	store IPlayerStore
 	http.Handler
 }
 
@@ -25,7 +25,7 @@ type Player struct {
 	Wins int
 }
 
-func NewPlayerServer(store PlayerStore) *PlayerServer {
+func NewPlayerServer(store IPlayerStore) *PlayerServer {
 	p := new(PlayerServer)
 	p.store = store
 	router := http.NewServeMux()
@@ -39,7 +39,6 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", jsonContentType)
 	json.NewEncoder(w).Encode(p.store.GetLeague())
-	//w.WriteHeader(http.StatusOK)
 }
 
 func (p *PlayerServer) playersHandler(w http.ResponseWriter, r *http.Request) {
